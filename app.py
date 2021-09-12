@@ -7,22 +7,22 @@ import os
 root_dir = "Data"
 file_extension = ".jpg"
 delimiter = "_"
-size_of_images_cm = 7.5
-space_between_images_cm = 1.5
-space_on_hor_edges_cm = 3.5
-space_on_ver_edges_cm = 4.5
-no_of_rows = 2
-no_of_columns = 2
+size_of_images_cm = 8
+space_between_images_cm = 1
+space_on_hor_edges_cm = 3
+space_on_ver_edges_cm = 4
+no_of_rows = 7
+no_of_columns = 5
 title = "2020"
 resolution_dpi = 300  # 300 is standard value for printing
-font_size_labels = 16
-font_size_title = 28
+font_size_labels = 50
+font_size_title = 200
 
 # font settings
 # https://stackoverflow.com/questions/15857117/python-pil-text-to-image-and-fonts
 fonts_path = "C:\Windows\Fonts"
 font = ImageFont.truetype(os.path.join(fonts_path, "calibrii.ttf"), font_size_labels)
-font_tit = ImageFont.truetype(os.path.join(fonts_path, "calibrib.ttf"), font_size_title)
+font_tit = ImageFont.truetype(os.path.join(fonts_path, "calibri.ttf"), font_size_title)
 
 # constants
 in_to_cm = 2.54
