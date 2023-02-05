@@ -1,10 +1,10 @@
-import sys
 from PIL import Image, ImageFont, ImageDraw
 from os import walk
 import os
 
 # application settings
 root_dir = "Data"
+label_override = "Data/labels.txt"
 file_extension = ".jpg"
 delimiter = "_"
 size_of_images_cm = 8
@@ -47,6 +47,7 @@ def calculate_poster_size():
 
 
 def load_and_resize_images(size_of_images):
+    overridden_labels = get_overridden_labels()
     images = []
     for (dirpath, dirnames, filenames) in walk(root_dir):
         for file in filenames:
@@ -55,8 +56,13 @@ def load_and_resize_images(size_of_images):
                 img = Image.open(os.path.join(dirpath, file))
                 img = img.resize((size_of_images, size_of_images), Image.ANTIALIAS)
 
-                label = file.split(file_extension)[0]
-                label = label.split(delimiter)[1]
+                label_parts = file.split(file_extension)[0].split(delimiter)
+                label = label_parts[1]
+                label_key = label_parts[0]
+
+                if label_key in overridden_labels:
+                    label = overridden_labels[label_key]
+                    print(f"\t\t-> {label}")
                 # print(text)
                 # print(img)
                 # img.show()
@@ -80,7 +86,7 @@ def main():
     # create poster
     poster = Image.new('RGB', (width, height), color=(255, 255, 255, 0))  # RGBA
 
-    # iterate through a the specified grid with specified spacing, to place the image
+    # iterate through the specified grid with specified spacing, to place the image
     inx = 0
     for i in range(no_of_rows):
         for j in range(no_of_columns):
@@ -105,6 +111,20 @@ def main():
     poster.show()
     poster.save("poster.jpg")
     poster.save("poster.pdf", "PDF", resolution=resolution_dpi)
+
+
+def get_overridden_labels():
+    if os.path.exists(label_override):
+        labels = {}
+
+        with open(label_override) as file:
+            for line in file:
+                line_txt = line.rstrip()
+                label_parts = line_txt.split(delimiter)
+                labels[label_parts[0]] = label_parts[1]
+        if len(labels) > 0:
+            return labels
+    return {}
 
 
 # Driver code
