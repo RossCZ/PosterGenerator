@@ -114,10 +114,11 @@ def main():
 
 
 def get_overridden_labels():
-    if os.path.exists(label_override):
+    labels_override_file = os.path.join(root_dir, label_override)
+    if os.path.exists(labels_override_file):
         labels = {}
 
-        with open(label_override) as file:
+        with open(labels_override_file) as file:
             for line in file:
                 line_txt = line.rstrip()
                 label_parts = line_txt.split(delimiter)
