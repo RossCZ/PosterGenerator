@@ -1,10 +1,9 @@
 from PIL import Image, ImageFont, ImageDraw
-from os import walk
-import os
+from pathlib import Path
 
 # application settings
 root_dir = "Data"
-label_override = "Data/labels.txt"
+label_override = "labels.txt"
 file_extension = ".jpg"
 delimiter = "_"
 size_of_images_cm = 8
@@ -20,9 +19,9 @@ font_size_title = 200
 
 # font settings
 # https://stackoverflow.com/questions/15857117/python-pil-text-to-image-and-fonts
-fonts_path = "C:\Windows\Fonts"
-font = ImageFont.truetype(os.path.join(fonts_path, "calibrii.ttf"), font_size_labels)
-font_tit = ImageFont.truetype(os.path.join(fonts_path, "calibri.ttf"), font_size_title)
+fonts_path = Path("C:/Windows/Fonts")
+font = ImageFont.truetype(Path(fonts_path, "calibrii.ttf").as_posix(), font_size_labels)
+font_tit = ImageFont.truetype(Path(fonts_path, "calibri.ttf").as_posix(), font_size_title)
 
 # constants
 in_to_cm = 2.54
@@ -46,27 +45,45 @@ def calculate_poster_size():
     return width_px, height_px
 
 
+def get_overridden_labels():
+    labels_override_file = Path(root_dir, label_override)
+    if labels_override_file.exists():
+        labels = {}
+
+        with open(labels_override_file) as file:
+            for line in file:
+                line_txt = line.rstrip()
+                label_parts = line_txt.split(delimiter)
+                labels[label_parts[0]] = label_parts[1]
+        if len(labels) > 0:
+            return labels
+    return {}
+
+
 def load_and_resize_images(size_of_images):
     overridden_labels = get_overridden_labels()
     images = []
-    for (dirpath, dirnames, filenames) in walk(root_dir):
-        for file in sorted(filenames):  # sort alphabetically
-            if file.endswith(file_extension):
-                print(f"\t{file}")
-                img = Image.open(os.path.join(dirpath, file))
-                img = img.resize((size_of_images, size_of_images), Image.LANCZOS)
+    for file in sorted(Path(root_dir).glob(f"*{file_extension}")):
+        print(f"\t{file.stem}")
+        img = Image.open(file)
 
-                label_parts = file.split(file_extension)[0].split(delimiter)
-                label = label_parts[1]
-                label_key = label_parts[0]
+        # check image aspect ratio 1:1
+        if img.size[0] != img.size[1]:
+            print(f"\t\tWARNING: aspect ratio 1:{img.size[0] / img.size[1]:.2f}")
 
-                if label_key in overridden_labels:
-                    label = overridden_labels[label_key]
-                    print(f"\t\t-> {label}")
-                # print(text)
-                # print(img)
-                # img.show()
-                images.append((img, label))
+        img = img.resize((size_of_images, size_of_images), Image.LANCZOS)
+        # img.show()
+
+        label_parts = file.stem.split(file_extension)[0].split(delimiter)
+        label = label_parts[1]
+        label_key = label_parts[0]
+
+        # overriden label?
+        if label_key in overridden_labels:
+            label = overridden_labels[label_key]
+            print(f"\t\t-> {label}")
+
+        images.append((img, label))
     return images
 
 
@@ -84,7 +101,7 @@ def main():
         return
 
     # create poster
-    poster = Image.new('RGB', (width, height), color=(255, 255, 255, 0))  # RGBA
+    poster = Image.new("RGB", (width, height), color=(255, 255, 255, 0))  # RGBA
 
     # iterate through the specified grid with specified spacing, to place the image
     inx = 0
@@ -113,20 +130,5 @@ def main():
     poster.save("poster.pdf", "PDF", resolution=resolution_dpi)
 
 
-def get_overridden_labels():
-    labels_override_file = os.path.join(root_dir, label_override)
-    if os.path.exists(labels_override_file):
-        labels = {}
-
-        with open(labels_override_file) as file:
-            for line in file:
-                line_txt = line.rstrip()
-                label_parts = line_txt.split(delimiter)
-                labels[label_parts[0]] = label_parts[1]
-        if len(labels) > 0:
-            return labels
-    return {}
-
-
-# Driver code
-main()
+if __name__ == "__main__":
+    main()
