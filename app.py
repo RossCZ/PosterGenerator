@@ -50,7 +50,7 @@ def load_and_resize_images(size_of_images):
     overridden_labels = get_overridden_labels()
     images = []
     for (dirpath, dirnames, filenames) in walk(root_dir):
-        for file in filenames:
+        for file in sorted(filenames):  # sort alphabetically
             if file.endswith(file_extension):
                 print(f"\t{file}")
                 img = Image.open(os.path.join(dirpath, file))
