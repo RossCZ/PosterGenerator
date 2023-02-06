@@ -54,7 +54,7 @@ def load_and_resize_images(size_of_images):
             if file.endswith(file_extension):
                 print(f"\t{file}")
                 img = Image.open(os.path.join(dirpath, file))
-                img = img.resize((size_of_images, size_of_images), Image.ANTIALIAS)
+                img = img.resize((size_of_images, size_of_images), Image.LANCZOS)
 
                 label_parts = file.split(file_extension)[0].split(delimiter)
                 label = label_parts[1]
